@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Anonyme Lyautey – Connexion</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="icon" href="images/logo.png" type="image/png" />
+</head>
+<body>
+  <div class="header">
+    <img src="images/logo.png" alt="Logo" />
+    <h1>Anonyme Lyautey</h1>
+  </div>
+
+  <div class="container">
+    <input type="text" id="loginPseudo" placeholder="Pseudo">
+    <input type="password" id="loginPass" placeholder="Mot de passe">
+    <button onclick="login()">Connexion</button>
+    <hr />
+    <select id="signupGender">
+      <option value="👦">Homme</option>
+      <option value="👧">Femme</option>
+    </select>
+    <input type="text" id="signupPseudo" placeholder="Nouveau pseudo">
+    <input type="password" id="signupPass" placeholder="Mot de passe">
+    <input type="text" id="signupAvatar" placeholder="Photo de profil (URL)">
+    <button onclick="signup()">Inscription</button>
+  </div>
+
+  <script>
+    function login() {
+      fetch("/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          pseudo: document.getElementById("loginPseudo").value,
+          password: document.getElementById("loginPass").value
+        })
+      })
+      .then(res => {
+        if (!res.ok) throw new Error("Échec de connexion");
+        return res.json();
+      })
+      .then(user => {
+        localStorage.setItem("user", JSON.stringify(user));
+        window.location.href = "chat.html";
+      })
+      .catch(err => alert(err.message));
+    }
+
+    function signup() {
+      fetch("/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          pseudo: document.getElementById("signupPseudo").value,
+          password: document.getElementById("signupPass").value,
+          gender: document.getElementById("signupGender").value,
+          avatar: document.getElementById("signupAvatar").value
+        })
+      })
+      .then(res => {
+        if (!res.ok) return res.text().then(msg => { throw new Error(msg); });
+        alert("Inscription réussie ! Connecte-toi.");
+      })
+      .catch(err => alert(err.message));
+    }
+  </script>
+</body>
+</html>

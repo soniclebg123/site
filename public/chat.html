@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Anonyme Lyautey – Chat</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="icon" href="images/logo.png" type="image/png" />
+</head>
+<body>
+  <div class="header">
+    <img src="images/logo.png" alt="Logo" />
+    <h1>Anonyme Lyautey</h1>
+  </div>
+
+  <div id="messages"></div>
+  <form id="form">
+    <input id="msg" autocomplete="off" placeholder="Ton message" />
+    <button>Envoyer</button>
+  </form>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const user = JSON.parse(localStorage.getItem("user"));
+    if (!user) {
+      alert("Non autorisé. Connecte-toi d'abord.");
+      window.location.href = "/";
+    }
+
+    const socket = io();
+    socket.emit("join", user);
+
+    const messages = document.getElementById("messages");
+    const form = document.getElementById("form");
+    const input = document.getElementById("msg");
+
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      if (input.value.trim()) {
+        socket.emit("chat message", {
+          pseudo: user.gender + " " + user.pseudo,
+          text: input.value,
+        });
+        input.value = "";
+      }
+    });
+
+    socket.on("chat message", (msg) => {
+      const item = document.createElement("div");
+      item.textContent = `${msg.pseudo} : ${msg.text}`;
+      messages.appendChild(item);
+      messages.scrollTop = messages.scrollHeight;
+    });
+  </script>
+</body>
+</html>
